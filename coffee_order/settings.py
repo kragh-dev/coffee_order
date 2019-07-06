@@ -25,12 +25,17 @@ SECRET_KEY = '7_$1us+&18nlgru-9l$xff%5!4o!6$e9gq#56+x%)a#khjq#tt'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'works.zoorik',
+    '127.0.0.1',
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'order_manager.apps.OrderManagerConfig',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,8 +80,14 @@ WSGI_APPLICATION = 'coffee_order.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        #'NAME': 'chitapp',
+        'NAME': 'order_management',
+        'USER': 'root',
+        'PASSWORD': '',
+        #'HOST': '13.235.8.148',
+        'HOST': 'works.zoorik',
+        'PORT': '3306',
     }
 }
 
