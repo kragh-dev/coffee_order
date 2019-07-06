@@ -17,6 +17,7 @@ class User(models.Model):
     name = models.CharField(max_length=100)
     role = models.IntegerField(max_length=1)
     phone = models.CharField(max_length=10, unique=True)
+    is_active = models.BooleanField(default=True)
 
     def save(self):
         super(User, self).save()

@@ -19,5 +19,6 @@ from order_manager import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/userCreation', views.UserCreation.as_view()),
+    path('api/user', views.UserView.as_view()),
+    path('api/user/<int:userId>', views.UserView.as_view()),
 ]

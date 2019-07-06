@@ -15,8 +15,8 @@ from rest_framework import exceptions
 from rest_framework.authentication import get_authorization_header
 from rest_framework.authtoken.models import Token
 
-class UserCreation(views.APIView):
-   def post(self, request, userId=0):
+class UserView(views.APIView):
+    def post(self, request, userId=0):
         if userId == 0:
             try:
                 user = User(
@@ -40,4 +40,25 @@ class UserCreation(views.APIView):
                 return JsonResponse({'status': True,'id': id, 'message': 'Information updated successfully'}, status=200)
             except Exception as e:
                 return JsonResponse({'message' : str(e),'status': False},status=200)
+
+    def get(self, request, userId=0):
+        if userId==0:
+            users = User.objects.all()
+        else:
+            users = User.objects.filter(id=userId)
+        result = []
+
+        for user in users:
+            status=True
+            if user.is_active == 0:
+                status=False
+
+            result.append({
+                'id':user.id,
+                'name': user.name,
+                'phone': user.phone,
+                'role': user.role,
+                'status': status
+            }) 
+        return JsonResponse(result, safe=False, status=200)
    
