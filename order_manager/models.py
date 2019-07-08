@@ -25,6 +25,9 @@ class User(models.Model):
         super(User, self).save()
         return self
 
+    def __str__(self):
+        s=str(self.id)
+        return s 
 
 class Client(models.Model):
     id = models.AutoField(primary_key=True)
@@ -59,12 +62,15 @@ class OrderItemStack(models.Model):
         super(OrderItemStack, self).save()
         return self
 
+    def __str__(self):
+        s=str(self.item_id)
+        return s
+
 class Schedule(models.Model):
     id = models.AutoField(primary_key=True)
     client_id = models.ForeignKey(Client, on_delete=True)
-    phone = models.CharField(max_length=10)
     user_id = models.ForeignKey(User, on_delete=True)
-    morning_time = models.TextField()
+    morning_time = models.TimeField()
     evening_time = models.TimeField()
     date = models.DateField()
     order_template_id = models.ForeignKey(OrderTemplate, on_delete=True)
@@ -93,3 +99,6 @@ class OrderList(models.Model):
     item_id = models.ForeignKey(Items, on_delete=models.CASCADE)
     quantity = models.ForeignKey(OrderTemplate, on_delete=True)
     price = models.IntegerField()
+
+class Automate(models.Model):
+    run_at_times = models.TimeField()

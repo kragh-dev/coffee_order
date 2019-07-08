@@ -6,10 +6,11 @@ from django.db.models import F,Q
 from django.db.models import Count, Sum
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
-from .models import User, Shops, Items, Client, OrderTemplate, OrderItemStack, Schedule
+from django_cron import CronJobBase, Schedule
+from .models import User, Shops, Items, Client, OrderTemplate, OrderItemStack, Schedule, Automate
 
 import jwt,json
-from datetime import datetime
+from datetime import datetime, date
 
 from rest_framework import exceptions
 from rest_framework.authentication import get_authorization_header
@@ -169,7 +170,7 @@ class ClientView(views.APIView):
                 client.save()
 
                 order_temp = OrderTemplate(
-                    client_id = client.id
+                    client_id = Client.objects.filter(id=client.id).get(),
                 )
 
                 order_temp.save()
@@ -178,26 +179,23 @@ class ClientView(views.APIView):
 
                 for item in items:
                     data = OrderItemStack(
-                        order_temp_id = order_temp.id,
+                        order_temp_id = OrderTemplate.objects.filter(id=order_temp.id).get(),
                         item_id = Items.objects.filter(id=item['item_id']).get(),
                         quantity = item['quantity']
                     )
                     data.save()
 
-                userId = User.objects.filter(id=request.data['user_id']).get(),
-                user = User.objects.filter(id=userId),
-
                 dates = json.loads(request.data['dates'])
 
                 for date in dates:
+                   # print(date['date'])
                     schedule = Schedule(
-                        client_id = client.id,
-                        phone = user.phone,
-                        user_id = userId,
-                        morning_time = request.data('morning_time'),
-                        evening_time = request.data('evening_time'),
+                        client_id = Client.objects.filter(id=client.id).get(),
+                        user_id = User.objects.filter(id=request.data['user_id']).get(),
+                        morning_time = request.data['morning_time'],
+                        evening_time = request.data['evening_time'],
                         date = date['date'],
-                        order_template_id = order_temp.id,
+                        order_template_id = OrderTemplate.objects.filter(id=order_temp.id).get(),
                     )
                     schedule.save()
 
@@ -237,10 +235,5 @@ class ClientView(views.APIView):
         except Exception as e:
             return JsonResponse({'message' : str(e),'status': False},status=200)
 
-
-
-
-
-
-
-        
+def generate_daily_order():
+    print("Kaarthikeyan")

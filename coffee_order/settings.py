@@ -42,6 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
+]
+
+CRONJOBS = [
+    ('*/1 * * * *', 'order_manager.views.generate_daily_order')
 ]
 
 MIDDLEWARE = [

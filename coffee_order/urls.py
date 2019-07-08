@@ -26,4 +26,5 @@ urlpatterns = [
     path('api/item', views.ItemView.as_view()),
     path('api/item/<int:itemId>', views.ItemView.as_view()),
     path('api/client', views.ClientView.as_view()),
+    path('api/client/<int:clientId>', views.ClientView.as_view()),
 ]
