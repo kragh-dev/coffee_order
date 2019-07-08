@@ -16,6 +16,9 @@ from rest_framework import exceptions
 from rest_framework.authentication import get_authorization_header
 from rest_framework.authtoken.models import Token
 
+import schedule, time
+import kronos
+
 class UserView(views.APIView):
     def post(self, request, userId=0):
         if userId == 0:
@@ -164,6 +167,7 @@ class ClientView(views.APIView):
                     name = request.data['name'],
                     phone = request.data['phone'],
                     contact_person_name = request.data['contact_name'],
+                    address = request.data['address'],
                     shop_id = Shops.objects.filter(id=request.data['shopId']).get(),
                 )
 
@@ -188,7 +192,6 @@ class ClientView(views.APIView):
                 dates = json.loads(request.data['dates'])
 
                 for date in dates:
-                   # print(date['date'])
                     schedule = Schedule(
                         client_id = Client.objects.filter(id=client.id).get(),
                         user_id = User.objects.filter(id=request.data['user_id']).get(),
@@ -202,38 +205,53 @@ class ClientView(views.APIView):
                 return JsonResponse({'status':True, 'id': client.id,'order_temp_id': order_temp.id, 'message': 'Client and the respective orders added successfully'}, status=200)
             except Exception as e:
                 return JsonResponse({'message': str(e), 'status':False},status=200)
-
+    
     def get(self, request, clientId=0):
         try:
-            client = Client.objects.filter(id=clientId)
+            if clientId==0:
+               clients = Client.objects.all()
+            else:
+                clients = Client.objects.filter(id=clientId)
 
-            order_temps = OrderTemplate.objects.filter(client_id=client.id)
-
-            orders = []
-
-            item = []
-
-            for order_temp in order_temps:
-                items = OrderItemStack.objects.filter(order_temp_id=order_temp.id)
-                for item1 in items:
-                    item.append({
-                        'item_name': item1.name,
-                        'quantity': item1.quantity,
+            details = []
+            
+            for client in clients:
+                items = []
+                orders = []
+                order_temps = OrderTemplate.objects.filter(client_id=client.id)
+                for order_temp in order_temps:
+                    item = OrderItemStack.objects.filter(order_temp_id=order_temp.id)
+                    for i in item:
+                        items.append({
+                            'item_id': i.item_id.id,
+                            'item_name': i.item_id.name,
+                            'quantity': i.quantity,
+                        })
+                    orders.append({
+                        'order_temp_id': order_temp.id, 
+                        'items': items,
                     })
-                orders.append({
-                    'order_temp_id': order_temp.id, 
-                    'items': item,
+                
+                details.append({
+                    'id': client.id,
+                    'name': client.name,
+                    'phone': client.phone,
+                    'contact_person_name': client.contact_person_name,
+                    'address': client.address,
+                    'shop_branch': client.shop_id.branch,
+                    'orders': orders,
                 })
 
-            result = {
-                'id': client.id,
-                'name': client.name,
-                'orders': orders,
-            }
-
-            return JsonResponse(result, safe=False, status=200)
+            return JsonResponse(details, safe=False, status=200)
         except Exception as e:
             return JsonResponse({'message' : str(e),'status': False},status=200)
-
+            
+@kronos.register('*/1 * * * *')
 def generate_daily_order():
     print("Kaarthikeyan")
+
+# schedule.every(1).minutes.do(generate_daily_order)
+
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)

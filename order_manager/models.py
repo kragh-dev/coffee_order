@@ -34,8 +34,12 @@ class Client(models.Model):
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=10, unique=True)
     contact_person_name = models.CharField(max_length=100)
+    address = models.CharField(max_length=300)
     shop_id = models.ForeignKey(Shops, on_delete=models.CASCADE)
 
+    def __str__(self):
+        s=str(self.id)
+        return s
 
 class Items(models.Model):
     id = models.AutoField(primary_key=True)
@@ -44,6 +48,9 @@ class Items(models.Model):
     price = models.IntegerField()
     is_active = models.BooleanField(default=True)
 
+    def __str__(self):
+        s=str(self.id)
+        return s
 
 class OrderTemplate(models.Model):
     id = models.AutoField(primary_key=True)
@@ -61,10 +68,6 @@ class OrderItemStack(models.Model):
     def save(self):
         super(OrderItemStack, self).save()
         return self
-
-    def __str__(self):
-        s=str(self.item_id)
-        return s
 
 class Schedule(models.Model):
     id = models.AutoField(primary_key=True)
