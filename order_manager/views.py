@@ -7,7 +7,7 @@ from django.db.models import Count, Sum
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django_cron import CronJobBase, Schedule
-from .models import User, Shops, Items, Client, OrderTemplate, OrderItemStack, Schedule, Automate
+from .models import User, Shops, Items, Client, OrderTemplate, OrderItemStack, Schedule, Order
 
 import jwt,json
 from datetime import datetime, date
@@ -15,9 +15,6 @@ from datetime import datetime, date
 from rest_framework import exceptions
 from rest_framework.authentication import get_authorization_header
 from rest_framework.authtoken.models import Token
-
-import schedule, time
-import kronos
 
 class UserView(views.APIView):
     def post(self, request, userId=0):
@@ -185,7 +182,7 @@ class ClientView(views.APIView):
                     data = OrderItemStack(
                         order_temp_id = OrderTemplate.objects.filter(id=order_temp.id).get(),
                         item_id = Items.objects.filter(id=item['item_id']).get(),
-                        quantity = item['quantity']
+                        quantity = item['quantity'],
                     )
                     data.save()
 
@@ -197,6 +194,8 @@ class ClientView(views.APIView):
                         user_id = User.objects.filter(id=request.data['user_id']).get(),
                         morning_time = request.data['morning_time'],
                         evening_time = request.data['evening_time'],
+                        morning_schedule = request.data['morning_schedule'],
+                        evening_schedule = request.data['evening_schedule'],
                         date = date['date'],
                         order_template_id = OrderTemplate.objects.filter(id=order_temp.id).get(),
                     )
@@ -245,13 +244,41 @@ class ClientView(views.APIView):
             return JsonResponse(details, safe=False, status=200)
         except Exception as e:
             return JsonResponse({'message' : str(e),'status': False},status=200)
-            
-@kronos.register('*/1 * * * *')
+
 def generate_daily_order():
-    print("Kaarthikeyan")
-
-# schedule.every(1).minutes.do(generate_daily_order)
-
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+    print("Updating Today's Order")
+    todayDate = date.today()
+    schedules = Schedule.objects.filter(date=todayDate),
+    for schedule in schedules:
+        price = 0,
+        items = OrderItemStack.objects.filter(order_temp_id=schedule.order_template_id)
+        for item in items:
+            price = price + (item.item_id.price*item.quantity)
+        if schedule.morning_schedule == 1:
+            order = Order(
+                client_id = schedule.client_id,
+                user_id = schedule.user_id,
+                otp = 0,
+                delivery_status = 0,
+                user_phone = schedule.user_id.phone,
+                client_phone = schedule.client_id.phone,
+                date = schedule.date,
+                time = schedule.morning_time,
+                order_temp_id = schedule.order_template_id,
+                price = price,
+            )
+            order.save()
+        if schedule.evening_schedule == 1:
+            order = Order(
+                client_id = schedule.client_id,
+                user_id = schedule.user_id,
+                otp = 0,
+                delivery_status = 0,
+                user_phone = schedule.user_id.phone,
+                client_phone = schedule.client_id.phone,
+                date = schedule.date,
+                time = schedule.evening_time,
+                order_temp_id = schedule.order_template_id,
+                price = price,
+            )
+            order.save()

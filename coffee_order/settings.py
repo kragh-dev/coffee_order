@@ -42,13 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crontab',
-    'kronos',
+    # 'django_crontab',
+    # 'kronos',
 ]
 
-CRONJOBS = [
-    ('*/1 * * * *', 'order_manager.views.generate_daily_order')
-]
+# CRONJOBS = [
+#     ('*/1 * * * *', 'order_manager.views.generate_daily_order')
+# ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

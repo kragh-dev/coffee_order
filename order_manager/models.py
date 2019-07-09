@@ -77,6 +77,8 @@ class Schedule(models.Model):
     evening_time = models.TimeField()
     date = models.DateField()
     order_template_id = models.ForeignKey(OrderTemplate, on_delete=True)
+    morning_schedule = models.BooleanField(default = False)
+    evening_schedule = models.BooleanField(default = False)
 
     def save(self):
         super(Schedule, self).save()
@@ -90,18 +92,17 @@ class Order(models.Model):
     delivery_status = models.IntegerField()
     date = models.DateField()
     time = models.TimeField()
-    user_phone = models.IntegerField()
-    delivery_date = models.DateField()
-    delivery_time = models.TextField()
+    user_phone = models.CharField(max_length = 10)
+    client_phone = models.CharField(max_length = 10)
     total_price = models.IntegerField()
+    order_temp_id = models.IntegerField()
 
+    def save(self):
+        super(Order, self).save()
+        return self
 
 class OrderList(models.Model):
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
     order_list_id = models.AutoField(primary_key=True)
     item_id = models.ForeignKey(Items, on_delete=models.CASCADE)
     quantity = models.ForeignKey(OrderTemplate, on_delete=True)
-    price = models.IntegerField()
-
-class Automate(models.Model):
-    run_at_times = models.TimeField()
