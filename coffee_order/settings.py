@@ -91,8 +91,8 @@ DATABASES = {
         'NAME': 'order_management',
         'USER': 'root',
         'PASSWORD': '',
-        #'HOST': '13.235.8.148',
-        'HOST': 'works.zoorik',
+        'HOST': 'localhost',
+        #'HOST': 'works.zoorik',
         'PORT': '3306',
     }
 }
