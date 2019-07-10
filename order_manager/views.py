@@ -7,7 +7,7 @@ from django.db.models import Count, Sum
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django_cron import CronJobBase, Schedule
-from .models import User, Shops, Items, Client, OrderTemplate, OrderItemStack, Schedule, Order
+from .models import User, Shops, Items, Client, OrderTemplate, OrderItemStack, Schedule, Order, OrderList
 
 import jwt,json
 from datetime import datetime, date
@@ -246,39 +246,58 @@ class ClientView(views.APIView):
             return JsonResponse({'message' : str(e),'status': False},status=200)
 
 def generate_daily_order():
-    print("Updating Today's Order")
-    todayDate = date.today()
-    schedules = Schedule.objects.filter(date=todayDate),
-    for schedule in schedules:
-        price = 0,
-        items = OrderItemStack.objects.filter(order_temp_id=schedule.order_template_id)
-        for item in items:
-            price = price + (item.item_id.price*item.quantity)
-        if schedule.morning_schedule == 1:
-            order = Order(
-                client_id = schedule.client_id,
-                user_id = schedule.user_id,
-                otp = 0,
-                delivery_status = 0,
-                user_phone = schedule.user_id.phone,
-                client_phone = schedule.client_id.phone,
-                date = schedule.date,
-                time = schedule.morning_time,
-                order_temp_id = schedule.order_template_id,
-                price = price,
-            )
-            order.save()
-        if schedule.evening_schedule == 1:
-            order = Order(
-                client_id = schedule.client_id,
-                user_id = schedule.user_id,
-                otp = 0,
-                delivery_status = 0,
-                user_phone = schedule.user_id.phone,
-                client_phone = schedule.client_id.phone,
-                date = schedule.date,
-                time = schedule.evening_time,
-                order_temp_id = schedule.order_template_id,
-                price = price,
-            )
-            order.save()
+    try:
+        print("Updating Today's Order")
+        todayDate = date.today()
+        schedules = Schedule.objects.filter(date=todayDate),
+        for schedule in schedules:
+            price = 0,
+            items = OrderItemStack.objects.filter(order_temp_id=schedule.order_template_id.id)
+            for item in items:
+                price = price + (item.item_id.price*item.quantity)
+            if schedule.morning_schedule == 1:
+                order = Order(
+                    client_id = schedule.client_id.id,
+                    user_id = schedule.user_id.id,
+                    otp = 0,
+                    delivery_status = 0,
+                    user_phone = schedule.user_id.phone,
+                    client_phone = schedule.client_id.phone,
+                    date = schedule.date,
+                    time = schedule.morning_time,
+                    order_temp_id = schedule.order_template_id.id,
+                    price = price,
+                )
+                order.save()
+                for i in items:
+                    order_list = OrderList(
+                        order_id = Order.objects.filter(id=order.id).get(),
+                        item_id = i.item_id.id,
+                        quantity = i.quantity,
+                        price = (i.item_id.price)*(i.quantity),
+                    )
+                    order_list.save()
+            if schedule.evening_schedule == 1:
+                order = Order(
+                    client_id = schedule.client_id,
+                    user_id = schedule.user_id,
+                    otp = 0,
+                    delivery_status = 0,
+                    user_phone = schedule.user_id.phone,
+                    client_phone = schedule.client_id.phone,
+                    date = schedule.date,
+                    time = schedule.evening_time,
+                    order_temp_id = schedule.order_template_id,
+                    price = price,
+                )
+                order.save()
+                for i in items:
+                    order_list = OrderList(
+                        order_id = Order.objects.filter(id=order.id).get(),
+                        item_id = i.item_id.id,
+                        quantity = i.quantity,
+                        price = (i.item_id.price)*(i.quantity),
+                    )
+                    order_list.save()
+    except Exception as e:
+        print("Failed to generate daily order"+str(e))

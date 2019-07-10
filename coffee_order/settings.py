@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'works.zoorik',
     '127.0.0.1',
+    '13.235.8.148'
 ]
 
 
@@ -90,8 +91,8 @@ DATABASES = {
         #'NAME': 'chitapp',
         'NAME': 'order_management',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+        'PASSWORD': 'vgts@1234',
+        'HOST': 'l3.235.8.148',
         #'HOST': 'works.zoorik',
         'PORT': '3306',
     }
