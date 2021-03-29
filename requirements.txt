@@ -34,7 +34,7 @@ packaging==19.0
 portalocker==1.4.0
 protobuf==3.8.0
 psycopg2==2.8.3
-Pygments==2.4.2
+Pygments==2.7.4
 PyJWT==1.7.1
 pyparsing==2.4.0
 pypiwin32==223
