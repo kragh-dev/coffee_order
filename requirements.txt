@@ -35,7 +35,7 @@ portalocker==1.4.0
 protobuf==3.8.0
 psycopg2==2.8.3
 Pygments==2.4.2
-PyJWT==1.7.1
+PyJWT==2.4.0
 pyparsing==2.4.0
 pypiwin32==223
 PySocks==1.7.0
